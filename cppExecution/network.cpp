@@ -8,7 +8,8 @@ edge::edge(int nd1, int nd2) {	node1 = nd1;
 */
 
 node::node() {
-	startNode();
+	degree = 0;
+	live = 1;
 }
 
 node::~node() {
@@ -41,7 +42,8 @@ int node::insertEdge(int nodeID) {
 		return 1;
 	}
 	if (degree == 0) {
-		edges = new int(nodeID);
+		edges = new int[1];
+		edges[0] = nodeID;
 	} else {
 		int* tmpEdges = new int[degree+1];
 		for (int i = 0; i < degree; i++) {
@@ -59,6 +61,11 @@ int node::removeEdge(int nodeID) {
 	if ((live == 0) || (degree == 0)) {
 		return 1;
 	}
+	if (degree == 1) {
+		delete [] edges;
+		degree = 0;
+		return 0;
+	}
 	int* tmpEdges = new int[degree-1];
 	int j = 0;
 	for (int i = 0; i < degree; i++) {
@@ -67,6 +74,7 @@ int node::removeEdge(int nodeID) {
 			j++;
 		}
 		if ((j == (degree - 1)) && (i < (degree-1))) {
+			delete [] tmpEdges;
 			return 1;
 		}
 	}
@@ -187,15 +195,18 @@ int network::removeEdge(int nodeID1, int nodeID2) {
 int network::getShortestPathLength(int nodeID1, int nodeID2) {
 	int spLength = 0;
 	short found = 0;
+	
 	list<int> bfsqueue;
 	list<int> dfsqueue;
+	bfsqueue.push_back(nodeID1);
+	dfsqueue.push_back(0);
+	
 	short* visited = new short[numNodes];
 	for (int i = 0; i < numNodes; i++) {
 		visited[i] = 0;
 	}
 	visited[nodeID1] = 1;
-	bfsqueue.push_back(nodeID1);
-	dfsqueue.push_back(0);
+	
 	while (!bfsqueue.empty()) {
 		int node = bfsqueue.front();
 		bfsqueue.pop_front();
@@ -217,6 +228,9 @@ int network::getShortestPathLength(int nodeID1, int nodeID2) {
 			break;
 		}
 	}
+	
+	delete [] visited;
+	
 	return spLength+1;
 }
 

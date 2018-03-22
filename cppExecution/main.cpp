@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
 	float healerThres = atof(argv[3]);
 	float deadThres = atof(argv[4]);
 	float alpha = atof(argv[5]);
-	short verbose = atof(argv[6]);
+	int verbose = atoi(argv[6]);
 
 	clock_t startTime = clock();
 	if (verbose == 1) {
@@ -182,7 +182,7 @@ int main(int argc, char** argv) {
 		recProbEdges[i] = new float[numNodes]();
 	}
 	for (int i = 0; i < numNodes; i++) {
-		if (netC.getDegree(i) >= deadThres) {
+		if ((netC.getDegree(i) / 2) >= deadThres) {
 			netC.killNode(i);
 			deadNodes[numDeadNodes] = i;
 			numDeadNodes++;
@@ -195,14 +195,14 @@ int main(int argc, char** argv) {
 	}
 	
 	for (int i = 0; i < numNodes; i++) {
-		if ((netC.getDegree(i) >= healerThres) && (netC.getDegree(i) < deadThres)) {
-			float numer = netC.getDegree(i) - (healerThres - 1);
+		if (((netC.getDegree(i) / 2) >= healerThres) && ((netC.getDegree(i) / 2) < deadThres)) {
+			float numer = (netC.getDegree(i) / 2) - (healerThres - 1);
 			for (int j = 0; j < numDeadNodes; j++) {
-				int spLength = netC.getShortestPathLength(i, j) + 1;
-				int* edges = netC.getEdges(j);
-				float denom = (netC.getNumDamagedEdges() / 2) * spLength;
-				for (int k = 0; k < netC.getDegree(j); k++) {
-					recProbEdges[j][edges[k]] += numer / denom;
+				int spLength = netC.getShortestPathLength(i, deadNodes[j]);
+				int* edges = netC.getEdges(deadNodes[j]);
+				float denom = netC.getNumDamagedEdges() * spLength;
+				for (int k = 0; k < netC.getDegree(deadNodes[j]); k++) {
+					recProbEdges[deadNodes[j]][edges[k]] += numer / denom;
 				}
 			}
 		}
