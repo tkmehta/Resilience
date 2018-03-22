@@ -39,6 +39,8 @@ class network {
 		node* nodes;
 	public:
 		network(int numN);
+		int getNumEdges();
+		int getDegree(int nodeID);
 		int startNode(int nodeID);
 		int insertEdge(int nodeID1, int nodeID2);
 		int removeEdge(int nodeID1, int nodeID2);

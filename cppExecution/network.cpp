@@ -110,6 +110,14 @@ network::network(int numN) {
 	nodes = new node[numNodes];
 }
 
+int network::getNumEdges() {
+	return numEdges;
+}
+
+int network::getDegree(int nodeID) {
+	return nodes[nodeID].getDegree();
+}
+
 int network::startNode(int nodeID) {
 	if (nodes[nodeID].startNode() != 0) {
 		cout << "ERROR: Unable to start node " << nodeID << "." << endl;
