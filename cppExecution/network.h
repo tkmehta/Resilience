@@ -1,3 +1,4 @@
+#include <list>
 #include <ctime>
 #include <iostream>
 #include <cstdlib>
@@ -21,6 +22,7 @@ class node {
 		int* edges;
 	public:
 		node();
+		~node();
 		short isLive();
 		int getDegree();
 		int* getEdges();
@@ -36,14 +38,19 @@ class network {
 		int numNodes;
 		int liveNodes;
 		int numEdges;
+		int numDamagedEdges;
 		node* nodes;
 	public:
 		network(int numN);
+		~network();
 		int getNumEdges();
+		int getNumDamagedEdges();
 		int getDegree(int nodeID);
+		int* getEdges(int nodeID);
 		int startNode(int nodeID);
 		int insertEdge(int nodeID1, int nodeID2);
 		int removeEdge(int nodeID1, int nodeID2);
+		int getShortestPathLength(int nodeID1, int nodeID2);
 		int killNode(int nodeID);
 		void printNetwork(short printLiveNodes, short printDeadNodes, short printPerNodeStatus);
 };

@@ -3,10 +3,10 @@
 // List of arguments
 // 1. number of nodes
 // 2. initial degree of the network
-// 3. lower helper nodes degree limit
-// 4. upper helper nodes degree limit
+// 3. healer nodes degree threshold
+// 4. dead nodes degree threshold
 // 5. alpha
-// 6. failed path weight
+// 6. verbose
 
 const time_t ctt = time(0);
 
@@ -16,33 +16,35 @@ int main(int argc, char** argv) {
 		cout << "Please enter the following mandatory parameters:" << endl;
 		cout << "1. number of nodes    (int)" << endl;
 		cout << "2. initial degree     (int)" << endl;
-		cout << "3. lower helper limit (int)" << endl;
-		cout << "4. upper helper limit (int)" << endl;
+		cout << "3. healer threshold   (int)" << endl;
+		cout << "4. dead threshold     (int)" << endl;
 		cout << "5. alpha              (float)" << endl;
-		cout << "6. failed path weight (float)" << endl;
+		cout << "6. verbose            (0|1)" << endl;
 		return 1;
 	}
 
 	int numNodes = atoi(argv[1]);
 	int initDegree = atoi(argv[2]);
-	float lowerLimit = atof(argv[3]);
-	float upperLimit = atof(argv[4]);
+	float healerThres = atof(argv[3]);
+	float deadThres = atof(argv[4]);
 	float alpha = atof(argv[5]);
-	float failedPathWeight = atof(argv[6]);
-
-	cout << "The simulation parameters have been set to the following values:" << endl;
-	cout << "number of nodes   : " << numNodes << endl;
-	cout << "initial degree    : " << initDegree << endl;
-	cout << "lower helper limit: " << lowerLimit << endl;
-	cout << "upper helper limit: " << upperLimit << endl;
-	cout << "alpha             : " << alpha << endl;
-	cout << "failed path weight: " << failedPathWeight << endl;
+	short verbose = atof(argv[6]);
 
 	clock_t startTime = clock();
-	cout << "Simulation start at " << asctime(localtime(&ctt));
+	if (verbose == 1) {
+		cout << "The simulation parameters have been set to the following values:" << endl;
+		cout << "number of nodes   : " << numNodes << endl;
+		cout << "initial degree    : " << initDegree << endl;
+		cout << "healer threshold  : " << healerThres << endl;
+		cout << "dead threshold    : " << deadThres << endl;
+		cout << "alpha             : " << alpha << endl;
+		cout << "verbose           : " << verbose << endl;
+
+		cout << "Simulation start at " << asctime(localtime(&ctt));
+	}
 
 	// Seed random number
-	srand(time(0));
+	srand(ctt);
 
 	// Initialize and construct network A
 	network netA(numNodes);
@@ -55,7 +57,7 @@ int main(int argc, char** argv) {
 
 	for (int i = initDegree + 1; i < numNodes; i++) {
 		int degConnNodes = 0;
-		int* connNodes = new int[i]();
+		short* connNodes = new short[i]();
 		for (int j = 0; j < initDegree; j++) {
 			int degCounter = 0;
 			int probAttach = rand() % ((netA.getNumEdges() * 2) - degConnNodes - j) + 1;
@@ -73,6 +75,11 @@ int main(int argc, char** argv) {
 			}
 		}
 		delete [] connNodes;
+	}
+
+	if (verbose == 1) {
+		cout << "Finished constructing network A." << endl;
+		netA.printNetwork(0, 0, 0);
 	}
 
 	// Initialize and construct network B
@@ -118,7 +125,7 @@ int main(int argc, char** argv) {
 	for (int i = initDegree + 1; i < numNodes; i++) {
 		int degConnNodesA = 0;
 		int degConnNodesB = 0;
-		int* connNodes = new int[i]();
+		short* connNodes = new short[i]();
 		for (int j = 0; j < initDegree; j++) {
 			float probCounter = 0;
 			float probAttach = rand() / (float)RAND_MAX;
@@ -148,13 +155,100 @@ int main(int argc, char** argv) {
 	delete [] arrOrder;
 	delete [] arrNodes;
 
-	netA.printNetwork(0, 0, 0);
-	netB.printNetwork(0, 0, 0);
-	clock_t endTime = clock();
-	cout << "Simulation end at " << asctime(localtime(&ctt));
+	if (verbose == 1) {
+		cout << "Finished constructing network B." << endl;
+		netB.printNetwork(0, 0, 0);
+	}
 
-	cout << "Total run time is " << float(endTime - startTime) / CLOCKS_PER_SEC << "s." << endl;
-	cout << "Finished successfully." << endl;
+	// Construct combined network
+	network netC(numNodes);
+
+	for (int i = 0; i < numNodes; i++) {
+		int* edgesA = netA.getEdges(i);
+		int* edgesB = netB.getEdges(i);
+		for (int j = 0; j < netA.getDegree(i); j++) {
+			netC.insertEdge(i, edgesA[j]); 
+		}
+		for (int j = 0; j < netB.getDegree(i); j++) {
+			netC.insertEdge(i, edgesB[j]); 
+		}
+	}
+
+	int numDeadNodes = 0;
+	int* deadNodes = new int[numNodes];
+	float** recProbEdges = new float*[numNodes];
+	for (int i = 0; i < numNodes; i++) {
+		deadNodes[i] = -1;
+		recProbEdges[i] = new float[numNodes]();
+	}
+	for (int i = 0; i < numNodes; i++) {
+		if (netC.getDegree(i) >= deadThres) {
+			netC.killNode(i);
+			deadNodes[numDeadNodes] = i;
+			numDeadNodes++;
+		}
+	}
+
+	if (verbose == 1) {
+		cout << "Finished constructing combined network." << endl;
+		netC.printNetwork(0, 0, 0);
+	}
+	
+	for (int i = 0; i < numNodes; i++) {
+		if ((netC.getDegree(i) >= healerThres) && (netC.getDegree(i) < deadThres)) {
+			float numer = netC.getDegree(i) - (healerThres - 1);
+			for (int j = 0; j < numDeadNodes; j++) {
+				int spLength = netC.getShortestPathLength(i, j) + 1;
+				int* edges = netC.getEdges(j);
+				float denom = (netC.getNumDamagedEdges() / 2) * spLength;
+				for (int k = 0; k < netC.getDegree(j); k++) {
+					recProbEdges[j][edges[k]] += numer / denom;
+				}
+			}
+		}
+	}
+
+	float minRecProb = 999999999;
+	float maxRecProb = 0;
+	float sumRecProb = 0;
+	float numRecProb = 0;
+	float avgRecProb = 0;
+	for (int i = 0; i < numNodes; i++) {
+		for (int j = 0; j < numNodes; j++) {
+			if (recProbEdges[i][j] != 0) {
+				minRecProb = min(minRecProb, recProbEdges[i][j]);
+				maxRecProb = max(maxRecProb, recProbEdges[i][j]);
+				sumRecProb += recProbEdges[i][j];
+				numRecProb++;
+			}
+		}
+	}
+	avgRecProb = sumRecProb / numRecProb;
+	
+	delete [] deadNodes;
+	for (int i = 0; i < numNodes; i++) {
+		delete [] recProbEdges[i];
+	}
+	delete [] recProbEdges;
+
+	clock_t endTime = clock();
+	if (verbose == 1) {
+		cout << "Minimum Edge Recovery: " << minRecProb << endl;
+		cout << "Maximum Edge Recovery: " << maxRecProb << endl;
+		cout << "Average Edge Recovery: " << avgRecProb << endl;
+
+		cout << "Simulation end at " << asctime(localtime(&ctt));
+
+		cout << "Total run time is " << float(endTime - startTime) / CLOCKS_PER_SEC << "s." << endl;
+		cout << "Finished successfully." << endl;
+	} else {
+		cout << numNodes << ",";
+		cout << initDegree << ",";
+		cout << healerThres << ",";
+		cout << deadThres << ",";
+		cout << alpha << ",";
+		cout << minRecProb << "," << maxRecProb << "," << avgRecProb << endl;
+	}
 	
 	return 0;
 }
