@@ -41,46 +41,32 @@ int main(int argc, char** argv) {
 	clock_t startTime = clock();
 	cout << "Simulation start at " << asctime(localtime(&ctt));
 
+	// Seed random number
+	srand(time(0));
+
 	// Initialize and construct network A
 	network netA(numNodes);
 	
 	for (int i = 0; i <= initDegree; i++) {
-		for (int j = 0; j <= initDegree; j++) {
-			if (i != j) {
-				netA.insertEdge(i, j);
-			}
+		for (int j = i+1; j <= initDegree; j++) {
+			netA.insertEdge(i, j);
 		}
 	}
 
 	for (int i = initDegree + 1; i < numNodes; i++) {
 		int degConnNodes = 0;
-		int tailConnNodes = 0;
-		int* connNodes = new int[initDegree];
-		for (int j = 0; j < initDegree; j++) {
-			connNodes[j] = -1;
-		}
+		int* connNodes = new int[i]();
 		for (int j = 0; j < initDegree; j++) {
 			int degCounter = 0;
-			int probAttach = rand() % ((netA.getNumEdges() * 2) - degConnNodes + 1);
+			int probAttach = rand() % ((netA.getNumEdges() * 2) - degConnNodes - j) + 1;
 			for (int k = 0; k < i; k++) {
-				int found = 0;
-				for (int l = 0; l < initDegree; l++) {
-					if (connNodes[l] == -1) {
-						break;
-					}
-					if (connNodes[l] == k) {
-						found = 1;
-						break;
-					}
-				}
-				if (found == 0) {
+				if (connNodes[k] == 0) {
 					int nodeDeg = netA.getDegree(k);
 					degCounter += nodeDeg;
 					if (probAttach <= degCounter) {
 						netA.insertEdge(i, k);
 						degConnNodes += nodeDeg + 1;
-						connNodes[tailConnNodes] = k;
-						tailConnNodes++;
+						connNodes[k] = 1;
 						break;
 					}
 				}
@@ -88,10 +74,11 @@ int main(int argc, char** argv) {
 		}
 		delete [] connNodes;
 	}
-	
+
 	// Initialize and construct network B
 	network netB(numNodes);
 
+	// Generate the arrival order
 	int* arrOrder = new int[numNodes];
 	int* arrNodes = new int[numNodes];
 	for (int i = 0; i < numNodes; i++) {
@@ -105,7 +92,7 @@ int main(int argc, char** argv) {
 		float probOrder = rand() / (float)RAND_MAX;
 		for (int j = 0; j < numNodes; j++) {
 			if (arrNodes[j] == -1) {
-				float nodeProb = ((1 - alpha) * netA.getDegree(j) / (float)((netA.getNumEdges() * 2) - degArrivedNodes)) + (alpha / numNodesRem);
+				float nodeProb = ((1-alpha) * netA.getDegree(j) / (float)((netA.getNumEdges()*2) - degArrivedNodes)) + (alpha / numNodesRem);
 				probCounter += nodeProb;
 				if (probOrder <= probCounter) {
 					arrOrder[i] = j;
@@ -117,57 +104,52 @@ int main(int argc, char** argv) {
 			}
 		}
 	}
-
-	for (int i = 1; i <= initDegree; i++) {
-		netB.insertEdge(arrOrder[0], arrOrder[i]);
+	
+	// Initialize the graphi
+	int degArrA = 0;
+	for (int i = 0; i <= initDegree; i++) {
+		for (int j = i+1; j <= initDegree; j++) {
+			netB.insertEdge(arrOrder[i], arrOrder[j]);
+		}
+		degArrA += netA.getDegree(arrOrder[i]);
 	}
 
-	cout << "Done." << endl;
+	// Construct the remaining network
 	for (int i = initDegree + 1; i < numNodes; i++) {
 		int degConnNodesA = 0;
 		int degConnNodesB = 0;
-		int tailConnNodes = 0;
-		int* connNodes = new int[initDegree];
-		for (int j = 0; j < initDegree; j++) {
-			connNodes[j] = -1;
-		}
+		int* connNodes = new int[i]();
 		for (int j = 0; j < initDegree; j++) {
 			float probCounter = 0;
 			float probAttach = rand() / (float)RAND_MAX;
 			for (int k = 0; k < i; k++) {
-				int found = 0;
-				for (int l = 0; l < initDegree; l++) {
-					if (connNodes[l] == -1) {
-						break;
-					}
-					if (connNodes[l] == arrOrder[k]) {
-						found = 1;
-						break;
-					}
-				}
-				if (found == 0) {
-					float local = netB.getDegree(arrOrder[k]) / (float)((netB.getNumEdges() * 2) - degConnNodesB);
-					float global = (netA.getDegree(arrOrder[k]) + netB.getDegree(arrOrder[k])) / (float)(((netA.getNumEdges() * 2) - degConnNodesA) + ((netB.getNumEdges() * 2) + degConnNodesB));
+				if (connNodes[k] == 0) {
+					int l = arrOrder[k];
+					float degA = degArrA - degConnNodesA;
+					float degB = (netB.getNumEdges() * 2) - degConnNodesB - j;
+					float local = netB.getDegree(l) / degB;
+					float global = (netA.getDegree(l) + netB.getDegree(l)) / (degA + degB);
 					float nodeProb = ((1 - alpha) * global) + (alpha * local);
 					probCounter += nodeProb;
 					if (probAttach <= probCounter) {
-						netB.insertEdge(arrOrder[i], arrOrder[k]);
-						degConnNodesA += netA.getDegree(arrOrder[k]);
-						degConnNodesB += netB.getDegree(arrOrder[k]);
-						connNodes[tailConnNodes] = arrOrder[k];
-						tailConnNodes++;
+						netB.insertEdge(arrOrder[i], l);
+						degConnNodesA += netA.getDegree(l);
+						degConnNodesB += netB.getDegree(l);
+						connNodes[k] = 1;
 						break;
 					}
 				}
 			}
 		}
 		delete [] connNodes;
+		degArrA += netA.getDegree(arrOrder[i]);
 	}
-
+	
 	delete [] arrOrder;
+	delete [] arrNodes;
 
-	netA.printNetwork(0, 0, 0);	
-	netB.printNetwork(0, 0, 0);	
+	netA.printNetwork(0, 0, 0);
+	netB.printNetwork(0, 0, 0);
 	clock_t endTime = clock();
 	cout << "Simulation end at " << asctime(localtime(&ctt));
 
