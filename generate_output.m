@@ -11,8 +11,8 @@ poolobj=parpool(p,numprocs);%generate a parallel pool
 tic
 alpha=0:0.1:1;
 k=3; 
-node_number=10000;
-number_of_runs=10000;
+node_number=1000;
+number_of_runs=100;
 fracs=0.05;
 failed_path_weight=100;
 
@@ -26,10 +26,7 @@ for i=1:length(alpha)
     fprintf('alpha is %f',alpha(i));
     
 	parfor m=1:number_of_runs
-        m
-        if rem(m,10)==0
-            m
-        end
+        [m, alpha(i)]
 		[max_recovery_time_run(m,:),avg_recovery_time_run(m,:),legend(m)] = gen_graph(alpha(i),node_number,k,fracs,failed_path_weight);
     end
     max_recovery_time(i)=sum(max_recovery_time_run(:))/number_of_runs;

@@ -135,24 +135,24 @@ function [max_recovery_time,avg_recovery_time,legends] = gen_graph(alpha,node_nu
 	%Do the following for all of Fracs
 	for frac_index=1:length(fracs)
         frac=fracs(frac_index);
-		avg_total_deg = sum(sum(adj_A + adj_B))/(node_number);
+		%avg_total_deg = sum(sum(adj_A + adj_B))/(node_number);
 		
 		deg_total=degA+degB;
         if (test_A)
             deg_total=degA;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         end
 		[nodes_sorted,deg_indexes] = sort(deg_total,'descend');
-		
-		high_deg_nodes=nodes_sorted(nodes_sorted>avg_total_deg);
+		max_healer = 15*k;
+		high_deg_nodes=nodes_sorted(nodes_sorted>max_healer);
 		
 		%choose a fraction of high degree nodes randomly
 		%failed_indexes_sorted=randsample(length(high_deg_nodes),floor(length(high_deg_nodes)*frac));
 		%failed_node_index=deg_indexes(failed_indexes_sorted);%indexes of failed nodes
-		failed_node_index=deg_indexes(1:floor(length(high_deg_nodes)*frac));%indexes of failed nodes
+		failed_node_index=deg_indexes(1:floor(length(high_deg_nodes)));%indexes of failed nodes
 		
         %specify healers
-        min_healer = 7;
-        max_healer = 50;
+        min_healer = 10*k+1;
+        
         healer_indexes=find(deg_total >= min_healer & deg_total <= max_healer);
         xhealer = intersect(failed_node_index, healer_indexes);
         healer_indexes= setxor(healer_indexes, xhealer);
@@ -206,7 +206,7 @@ function [max_recovery_time,avg_recovery_time,legends] = gen_graph(alpha,node_nu
 			for j=1:length(wealthy_nodes)
 				%path_length(i,j) = max( [shortestpath(damaged_graph, damaged_edges(i, 1), wealthy_nodes(j)), shortestpath(damaged_graph, damaged_edges(i, 2), wealthy_nodes(j))]);
 				path_length(i,j) = 1+min( dist( damaged_edges(i, 1), wealthy_nodes(j)), dist(damaged_edges(i, 2), wealthy_nodes(j)));
-				recovery_probability(i, j) = (deg_total(wealthy_nodes(j)) - (min_healer - 1))/(length(damaged_edges)*path_length(i,j));
+				recovery_probability(i, j) = (deg_total(wealthy_nodes(j)) - min_healer)/(length(damaged_edges)*path_length(i,j));
 			end
 		end
 		
