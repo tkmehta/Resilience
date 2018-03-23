@@ -104,15 +104,15 @@ void node::printNode(int nodeID) {
 		cout << " (dead)";
 	} else {
 		cout << " (live)";
-		if (degree == 0) {
-			cout << ": Deg " << degree << " | No Edges";
-		} else {
-			cout << ": Deg " << degree << " | Edges ";
-			for (int i = 0; i < (degree - 1); i++) {
-				cout << edges[i] << ", ";
-			}
-			cout << edges[degree-1];
+	}
+	if (degree == 0) {
+		cout << ": Deg " << degree << " | No Edges";
+	} else {
+		cout << ": Deg " << degree << " | Edges ";
+		for (int i = 0; i < (degree - 1); i++) {
+			cout << edges[i] << ", ";
 		}
+		cout << edges[degree-1];
 	}
 	cout << endl;
 }
@@ -195,17 +195,14 @@ int network::removeEdge(int nodeID1, int nodeID2) {
 int network::getShortestPathLength(int nodeID1, int nodeID2) {
 	int spLength = 0;
 	short found = 0;
+
+	short* visited = new short[numNodes]();
+	visited[nodeID1] = 1;
 	
 	list<int> bfsqueue;
 	list<int> dfsqueue;
 	bfsqueue.push_back(nodeID1);
 	dfsqueue.push_back(0);
-	
-	short* visited = new short[numNodes];
-	for (int i = 0; i < numNodes; i++) {
-		visited[i] = 0;
-	}
-	visited[nodeID1] = 1;
 	
 	while (!bfsqueue.empty()) {
 		int node = bfsqueue.front();
@@ -228,10 +225,10 @@ int network::getShortestPathLength(int nodeID1, int nodeID2) {
 			break;
 		}
 	}
-	
+
 	delete [] visited;
 	
-	return spLength+1;
+	return (spLength + 1);
 }
 
 int network::killNode(int nodeID) {

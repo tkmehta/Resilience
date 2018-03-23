@@ -96,7 +96,7 @@ int main(int argc, char** argv) {
 	int degArrivedNodes = 0;
 	for (int i = 0; i < numNodes; i++) {
 		float probCounter = 0;
-		float probOrder = rand() / (float)RAND_MAX;
+		float probOrder = (float)((int)(rand() / (float)RAND_MAX * 1000)) / 1000;
 		for (int j = 0; j < numNodes; j++) {
 			if (arrNodes[j] == -1) {
 				float nodeProb = ((1-alpha) * netA.getDegree(j) / (float)((netA.getNumEdges()*2) - degArrivedNodes)) + (alpha / numNodesRem);
@@ -128,7 +128,7 @@ int main(int argc, char** argv) {
 		short* connNodes = new short[i]();
 		for (int j = 0; j < initDegree; j++) {
 			float probCounter = 0;
-			float probAttach = rand() / (float)RAND_MAX;
+			float probAttach = (float)((int)(rand() / (float)RAND_MAX * 1000)) / 1000;
 			for (int k = 0; k < i; k++) {
 				if (connNodes[k] == 0) {
 					int l = arrOrder[k];

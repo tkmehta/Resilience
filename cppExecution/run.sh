@@ -1,20 +1,20 @@
 #!/bin/bash
 
-NUM_RUNS=10000
 NUM_NODES=10000
 INIT_DEG=3
-HEAL_THRES=70
-DEAD_THRES=100
+HEAL_THRES=30
+DEAD_THRES=50
 ALPHA=0
 VERBOSE=0
+RUN_NUM=1
 
-while [ $ALPHA -le 1 ]
+while true
 do
-	RUN_NUM=1
-	while [ $RUN_NUM -le NUM_RUNS ]
+	ALPHA=0
+	while [ $ALPHA -le 10 ]
 	do
-		srun -N 1 -n 1 -p sched_mit_hil -t 00:01:00 ./resilience $NUM_NODES $INIT_DEG $HEAL_THRES $DEAD_THRES $ALPHA $ALPHA $VERBOSE > out.dat
-		((RUN_NUM++))
+		alpha=$(echo "scale=2;$ALPHA/10" | bc -l)
+		srun -N 1 -n 1 -p sched_mit_hill -t 00:05:00 ./resilience $NUM_NODES $INIT_DEG $HEAL_THRES $DEAD_THRES $alpha $VERBOSE >> out.dat
+		((ALPHA++))
 	done
-	ALPHA=$((ALPHA + 0.1))
 done
