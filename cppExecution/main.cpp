@@ -190,9 +190,10 @@ int main(int argc, char** argv) {
 	cout << healerThres << ",";
 	cout << deadThres << ",";
 	cout << alpha << ",";
-	for (int i = 0; i < highestDeg; i++) {
+	for (int i = 0; i < (highestDeg-1); i++) {
 		cout << degDist[i] << ",";
 	}
+	cout << degDist[highestDeg] << endl;
 
 	/*
 	int numDeadNodes = 0;
