@@ -40,7 +40,7 @@ def printInfo(numJobs, mean, stdev):
 		if (numJobs[i] != 0):
 			print("%i\t%i\t%i\t%.2f" %(i, numJobs[i], mean[i], stdev[i]))
 
-def plotData():
+def plotData(healThres, deadThres):
 
 	ALPHA_RANGE=11
 	alphaValues = [(a * 0.1) for a in range(0,ALPHA_RANGE)]
@@ -49,7 +49,7 @@ def plotData():
 	maxProb = [[] for a in range(0,ALPHA_RANGE)]
 	avgProb = [[] for a in range(0,ALPHA_RANGE)]
 
-	fileName = 'out.dat'
+	fileName = 'out_' + healThres + '_' + deadThres + '.dat'
 	with open(fileName) as fileVar:
 		fileContent = fileVar.readlines()
 
@@ -58,7 +58,6 @@ def plotData():
 		alpha = float(splits[4])
 		index = 0
 		for a in range(0,ALPHA_RANGE):
-			print(alpha)
 			if str(alphaValues[a]) == str(alpha):
 				index = a
 				break
@@ -100,4 +99,4 @@ def plotData():
 	mp.close()
 	
 if __name__ == '__main__':
-	plotData()
+	plotData(sys.argv[1], sys.argv[2])
