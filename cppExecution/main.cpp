@@ -174,6 +174,27 @@ int main(int argc, char** argv) {
 		}
 	}
 
+	// Print the degree distribution
+	int highestDeg = 0;
+	for (int i = 0; i < numNodes; i++) {
+		highestDeg = max(highestDeg, netC.getDegree(i)/2);
+	}
+
+	int* degDist = new int[highestDeg]();
+	for (int i = 0; i < numNodes; i++) {
+		degDist[(netC.getDegree(i)/2)-1]++;
+	}
+
+	cout << numNodes << ",";
+	cout << initDegree << ",";
+	cout << healerThres << ",";
+	cout << deadThres << ",";
+	cout << alpha << ",";
+	for (int i = 0; i < highestDeg; i++) {
+		cout << degDist[i] << ",";
+	}
+
+	/*
 	int numDeadNodes = 0;
 	int* deadNodes = new int[numNodes];
 	float** recProbEdges = new float*[numNodes];
@@ -249,6 +270,6 @@ int main(int argc, char** argv) {
 		cout << alpha << ",";
 		cout << minRecProb << "," << maxRecProb << "," << avgRecProb << endl;
 	}
-	
+	*/
 	return 0;
 }
