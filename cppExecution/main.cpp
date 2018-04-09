@@ -193,7 +193,7 @@ int main(int argc, char** argv) {
 	for (int i = 0; i < (highestDeg-1); i++) {
 		cout << degDist[i] << ",";
 	}
-	cout << degDist[highestDeg] << endl;
+	cout << degDist[highestDeg-1] << endl;
 
 	/*
 	int numDeadNodes = 0;
