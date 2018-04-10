@@ -182,6 +182,9 @@ int main(int argc, char** argv) {
 
 	int* degDist = new int[highestDeg]();
 	for (int i = 0; i < numNodes; i++) {
+		//if (netC.getDegree(i) % 2 != 0) {
+		//	cout << netC.getDegree(i) << endl;
+		//}
 		degDist[(netC.getDegree(i)/2)-1]++;
 	}
 
@@ -190,10 +193,14 @@ int main(int argc, char** argv) {
 	cout << healerThres << ",";
 	cout << deadThres << ",";
 	cout << alpha << ",";
+	//int sum = 0;
 	for (int i = 0; i < (highestDeg-1); i++) {
 		cout << degDist[i] << ",";
+		//sum += degDist[i];
 	}
 	cout << degDist[highestDeg-1] << endl;
+	//sum += degDist[highestDeg-1];
+	//cout << sum << endl;
 
 	/*
 	int numDeadNodes = 0;
