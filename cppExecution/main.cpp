@@ -201,6 +201,7 @@ int main(int argc, char** argv) {
 	cout << degDist[highestDeg-1] << endl;
 	//sum += degDist[highestDeg-1];
 	//cout << sum << endl;
+	delete [] degDist;
 
 	/*
 	int numDeadNodes = 0;
