@@ -160,17 +160,20 @@ int main(int argc, char** argv) {
 		netB.printNetwork(0, 0, 0);
 	}
 
-	// Construct combined network
+	// Construct combined network twice for randomized and targetted failures
 	network netC(numNodes);
+	network netD(numNodes);
 
 	for (int i = 0; i < numNodes; i++) {
 		int* edgesA = netA.getEdges(i);
 		int* edgesB = netB.getEdges(i);
 		for (int j = 0; j < netA.getDegree(i); j++) {
 			netC.insertEdge(i, edgesA[j]); 
+			netD.insertEdge(i, edgesA[j]);
 		}
 		for (int j = 0; j < netB.getDegree(i); j++) {
 			netC.insertEdge(i, edgesB[j]); 
+			netD.insertEdge(i, edgesB[j]); 
 		}
 	}
 
@@ -203,7 +206,8 @@ int main(int argc, char** argv) {
 	//cout << sum << endl;
 	delete [] degDist;
 
-	/*
+	
+	// Targetted Failure and Recovery
 	int numDeadNodes = 0;
 	int* deadNodes = new int[numNodes];
 	float** recProbEdges = new float*[numNodes];
@@ -279,6 +283,85 @@ int main(int argc, char** argv) {
 		cout << alpha << ",";
 		cout << minRecProb << "," << maxRecProb << "," << avgRecProb << endl;
 	}
-	*/
+
+	// Randomized Failure and Recovery
+	// Reuses same value of numDeadNodes from targetted failure
+	deadNodes = new int[numNodes];
+	recProbEdges = new float*[numNodes];
+	for (int i = 0; i < numNodes; i++) {
+		deadNodes[i] = -1;
+		recProbEdges[i] = new float[numNodes]();
+	}
+
+	std::vector<unsigned int> indices(numNodes);
+	std::iota(indices.begin(), indices.end(), 0);
+	std::random_shuffle(indices.begin(), indices.end());
+
+	for (int i = 0; i < numDeadNodes; i++) {
+		netD.killNode(indices[i]);
+		deadNodes[i] = indices[i];
+	}
+
+	if (verbose == 1) {
+		cout << "Finished constructing combined network." << endl;
+		netD.printNetwork(0, 0, 0);
+	}
+	
+	for (int i = 0; i < numNodes; i++) {
+		if (((netD.getDegree(i) / 2) >= healerThres) && netD.isLive(i)) {
+			float numer = (netD.getDegree(i) / 2) - (healerThres - 1);
+			for (int j = 0; j < numDeadNodes; j++) {
+				int spLength = netD.getShortestPathLength(i, deadNodes[j]);
+				int* edges = netD.getEdges(deadNodes[j]);
+				float denom = netD.getNumDamagedEdges() * spLength;
+				for (int k = 0; k < netD.getDegree(deadNodes[j]); k++) {
+					recProbEdges[deadNodes[j]][edges[k]] += numer / denom;
+				}
+			}
+		}
+	}
+
+	minRecProb = 999999999;
+	maxRecProb = 0;
+	sumRecProb = 0;
+	numRecProb = 0;
+	avgRecProb = 0;
+	for (int i = 0; i < numNodes; i++) {
+		for (int j = 0; j < numNodes; j++) {
+			if (recProbEdges[i][j] != 0) {
+				minRecProb = min(minRecProb, recProbEdges[i][j]);
+				maxRecProb = max(maxRecProb, recProbEdges[i][j]);
+				sumRecProb += recProbEdges[i][j];
+				numRecProb++;
+			}
+		}
+	}
+	avgRecProb = sumRecProb / numRecProb;
+	
+	delete [] deadNodes;
+	for (int i = 0; i < numNodes; i++) {
+		delete [] recProbEdges[i];
+	}
+	delete [] recProbEdges;
+
+	endTime = clock();
+	if (verbose == 1) {
+		cout << "Randomized Minimum Edge Recovery: " << minRecProb << endl;
+		cout << "Randomized Maximum Edge Recovery: " << maxRecProb << endl;
+		cout << "Randomized Average Edge Recovery: " << avgRecProb << endl;
+
+		cout << "Randomized Simulation end at " << asctime(localtime(&ctt));
+
+		cout << "Total run time is " << float(endTime - startTime) / CLOCKS_PER_SEC << "s." << endl;
+		cout << "Finished successfully." << endl;
+	} else {
+		cout << numNodes << ",";
+		cout << initDegree << ",";
+		cout << healerThres << ",";
+		cout << deadThres << ",";
+		cout << alpha << ",";
+		cout << minRecProb << "," << maxRecProb << "," << avgRecProb << endl;
+	}
+
 	return 0;
 }

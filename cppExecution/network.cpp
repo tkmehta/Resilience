@@ -145,6 +145,10 @@ int* network::getEdges(int nodeID) {
 	return nodes[nodeID].getEdges();
 }
 
+bool network::isLive(int nodeID) {
+	return nodes[nodeID].isLive();
+}
+
 int network::startNode(int nodeID) {
 	int nodeDegree = nodes[nodeID].getDegree();
 	if (nodes[nodeID].startNode() != 0) {

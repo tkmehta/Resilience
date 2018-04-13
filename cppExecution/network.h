@@ -53,4 +53,5 @@ class network {
 		int getShortestPathLength(int nodeID1, int nodeID2);
 		int killNode(int nodeID);
 		void printNetwork(short printLiveNodes, short printDeadNodes, short printPerNodeStatus);
+		bool isLive(int nodeID);
 };
