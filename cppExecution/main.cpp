@@ -191,21 +191,6 @@ int main(int argc, char** argv) {
 		degDist[(netC.getDegree(i)/2)-1]++;
 	}
 
-	cout << numNodes << ",";
-	cout << initDegree << ",";
-	cout << healerThres << ",";
-	cout << deadThres << ",";
-	cout << alpha << ",";
-	//int sum = 0;
-	for (int i = 0; i < (highestDeg-1); i++) {
-		cout << degDist[i] << ",";
-		//sum += degDist[i];
-	}
-	cout << degDist[highestDeg-1] << endl;
-	//sum += degDist[highestDeg-1];
-	//cout << sum << endl;
-	delete [] degDist;
-
 	
 	// Targetted Failure and Recovery
 	int numDeadNodes = 0;
@@ -281,7 +266,7 @@ int main(int argc, char** argv) {
 		cout << healerThres << ",";
 		cout << deadThres << ",";
 		cout << alpha << ",";
-		cout << minRecProb << "," << maxRecProb << "," << avgRecProb << endl;
+		cout << minRecProb << "," << maxRecProb << "," << avgRecProb << ",";
 	}
 
 	// Randomized Failure and Recovery
@@ -293,9 +278,9 @@ int main(int argc, char** argv) {
 		recProbEdges[i] = new float[numNodes]();
 	}
 
-	std::vector<unsigned int> indices(numNodes);
-	std::iota(indices.begin(), indices.end(), 0);
-	std::random_shuffle(indices.begin(), indices.end());
+	vector<unsigned int> indices(numNodes);
+	iota(indices.begin(), indices.end(), 0);
+	random_shuffle(indices.begin(), indices.end());
 
 	for (int i = 0; i < numDeadNodes; i++) {
 		netD.killNode(indices[i]);
@@ -355,13 +340,17 @@ int main(int argc, char** argv) {
 		cout << "Total run time is " << float(endTime - startTime) / CLOCKS_PER_SEC << "s." << endl;
 		cout << "Finished successfully." << endl;
 	} else {
-		cout << numNodes << ",";
-		cout << initDegree << ",";
-		cout << healerThres << ",";
-		cout << deadThres << ",";
-		cout << alpha << ",";
-		cout << minRecProb << "," << maxRecProb << "," << avgRecProb << endl;
+		cout << minRecProb << "," << maxRecProb << "," << avgRecProb << ",";
+		for (int i = 0; i < (highestDeg-1); i++) {
+			cout << degDist[i] << ",";
+			//sum += degDist[i];
+		}
+		cout << degDist[highestDeg-1] << endl;
+		//sum += degDist[highestDeg-1];
+		//cout << sum << endl;
 	}
+	
+	delete [] degDist;
 
 	return 0;
 }

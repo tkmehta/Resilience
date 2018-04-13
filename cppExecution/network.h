@@ -2,6 +2,9 @@
 #include <ctime>
 #include <iostream>
 #include <cstdlib>
+#include <vector>
+#include <numeric>
+#include <algorithm>
 
 using namespace std;
 
