@@ -191,7 +191,6 @@ int main(int argc, char** argv) {
 		degDist[(netC.getDegree(i)/2)-1]++;
 	}
 
-	
 	// Targetted Failure and Recovery
 	int numDeadNodes = 0;
 	int* deadNodes = new int[numNodes];

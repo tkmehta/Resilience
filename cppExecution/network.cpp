@@ -145,7 +145,7 @@ int* network::getEdges(int nodeID) {
 	return nodes[nodeID].getEdges();
 }
 
-bool network::isLive(int nodeID) {
+short network::isLive(int nodeID) {
 	return nodes[nodeID].isLive();
 }
 

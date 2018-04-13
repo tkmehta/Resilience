@@ -46,6 +46,7 @@ class network {
 	public:
 		network(int numN);
 		~network();
+		short isLive(int nodeID);
 		int getNumEdges();
 		int getNumDamagedEdges();
 		int getDegree(int nodeID);
@@ -56,5 +57,4 @@ class network {
 		int getShortestPathLength(int nodeID1, int nodeID2);
 		int killNode(int nodeID);
 		void printNetwork(short printLiveNodes, short printDeadNodes, short printPerNodeStatus);
-		bool isLive(int nodeID);
 };
