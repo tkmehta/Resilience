@@ -1,6 +1,6 @@
 from itertools import izip_longest
 
-tenk = False 
+tenk = True 
 dists = {}
 count = {}
 if tenk:
@@ -11,6 +11,7 @@ else:
     num_nodes = 1000.0
 deviation = {}
 dostandev = False
+k = 0
 for i in range(0, 11):
     dists[i/10.0] = []
     deviation[i/10.0] = []
@@ -21,15 +22,24 @@ with open(filename, 'r') as fin:
         s_split = s.split(',')
         if len(s_split) > 0:
             dist = map(float, s_split[11:])
+            k = int(s_split[1])
             index += 1
             try:
-                dist[-1] = num_nodes - sum(dist[0:-2])
+                #dist[-1] = num_nodes - sum(dist[0:-2])
                 dist = [x / num_nodes for x in dist]
                 assert dist[-1] > 0
             except AssertionError:
                 print "Last value: ", dist[-1]
                 print "Index: ", index
+                print "Filename: ", filename
+                print dist[8]
                 raise AssertionError
+            try:
+                for i in range(0, 2*k - 1):
+                    assert dist[i] == 0
+            except AssertionError:
+                print "Non-zero number of nodes with degree less than 2k"
+                print "Index: ", index
             try:
                 assert sum(dist) >= .99 and sum(dist) <=1.01 
             except AssertionError:
