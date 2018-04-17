@@ -112,7 +112,7 @@ int main(int argc, char** argv) {
 		}
 	}
 	
-	// Initialize the graphi
+	// Initialize the graph
 	int degArrA = 0;
 	for (int i = 0; i <= initDegree; i++) {
 		for (int j = i+1; j <= initDegree; j++) {
@@ -208,7 +208,7 @@ int main(int argc, char** argv) {
 	}
 
 	if (verbose == 1) {
-		cout << "Finished constructing combined network." << endl;
+		cout << "Finished constructing combined networks." << endl;
 		netC.printNetwork(0, 0, 0);
 	}
 	

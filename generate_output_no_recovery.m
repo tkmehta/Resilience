@@ -9,10 +9,10 @@ p = parallel.defaultClusterProfile;
 numprocs = feature ('numcores'); % maximum is number of physical cores
 poolobj=parpool(p,numprocs);%generate a parallel pool
 tic
-alpha=0:0.5:1;
-k=3; 
+alpha=0:1:1;
+k=1; 
 node_number=1000;
-number_of_runs=1;
+number_of_runs=100;
 fracs=0.05;
 failed_path_weight=100;
 

@@ -1,6 +1,6 @@
 from itertools import izip_longest
 
-tenk = True 
+tenk = False 
 dists = {}
 count = {}
 if tenk:
@@ -10,7 +10,7 @@ else:
     filename = "out1k.dat"
     num_nodes = 1000.0
 deviation = {}
-dostandev = True
+dostandev = False
 for i in range(0, 11):
     dists[i/10.0] = []
     deviation[i/10.0] = []
@@ -20,7 +20,7 @@ with open(filename, 'r') as fin:
     for s in fin:
         s_split = s.split(',')
         if len(s_split) > 0:
-            dist = map(float, s_split[5:])
+            dist = map(float, s_split[11:])
             index += 1
             try:
                 dist[-1] = num_nodes - sum(dist[0:-2])
@@ -57,7 +57,7 @@ if dostandev:
         for s in fin:
             s_split = s.split(',')
             if len(s_split) > 0:
-                dist = map(float, s_split[5:])
+                dist = map(float, s_split[11:])
                 dist[-1] = num_nodes - sum(dist[0:-2])
                 dist = [x / num_nodes for x in dist]
                 alpha = float(s_split[4])

@@ -1,13 +1,9 @@
-function [deg] = gen_graph_only(alpha,node_number,k)
+function [histexact] = gen_coev_exact(alpha, node_number,k)
 	%failed_path_weight=10;%length of a path after failure
-    test_A=0;%if non zero -> only generate A, if zero -> generate both a and b
 	adj_A=zeros(node_number,node_number);
-    legends.alpha=alpha;
-    legends.k=k;
-    legends.node_number=node_number;
     
 	%Build seed graph as a clique with k+1 nodes each with degree k
-    for i=1:k+1%initialize
+	for i=1:k+1%initialize
         for j = 1:k+1
             if (i ~=j)
                 adj_A(i,j)=1;
@@ -50,47 +46,25 @@ function [deg] = gen_graph_only(alpha,node_number,k)
 	adj_B=zeros(node_number,node_number);
 	%first we have to choose the order of nodes for connecting new graphs
 	%we generate node_number random number, 
-	orders=zeros(1,node_number);
-	%rands=rand(1,node_number);
-	remaining_nodes=1:node_number;
-	%the below parameters are used for finding the order of nodes " \alpha*(1/n_r)+(1-\alpha)*(d/2e) 
-	n_r=node_number;
-	e=sum(adj_A(:))/2;%total number of edges of network A
-	d=sum(adj_A,1);%degree of each node of A
-	for i=1:node_number
-		probs=(d/(2*e));%probabilities of remaining nodes
-        %probs=alpha/n_r+(1-alpha)*(d/(2*e));%probabilities of remaining nodes
-		probs=probs/sum(probs);%normalize
-        probs = (1 - alpha)*probs + alpha/n_r;
-		rand_number=rand(1);%get a random value
-		%check where the number lies between the probabilities
-		index=0;
-		while(rand_number>0)
-			index=index+1;
-			rand_number=rand_number-probs(index);
-		end
-		%index shows the chosen number
-		orders(i)=remaining_nodes(index);%add to order
-		remaining_nodes(index)=[];%remove from remaining nodes
-		d(index)=[];
-		n_r=n_r-1;
-	end
+	orders=1:node_number;
 	
 	%now we have the order of nodes, we do the same as above, but this timewith a weighted probability
 	%we connect the first k nodes
-	rands=rand(1,(node_number^2)/2+1);
-	for i=2:k%initialize
-		adj_B(orders(1),orders(i))=1;
-		adj_B(orders(i),orders(1))=1;
-	end
-	index_rand=1;
+	 for i=1:k+1%initialize
+        for j = 1:k+1
+            if (i ~=j)
+                adj_B(orders(i),orders(j))=1;
+                adj_B(orders(j),orders(i))=1;
+            end
+        end
+    end
     %do these calculations once outside the for loop, and update each value
     %inside the loop once to improve speed
     dl=sum(adj_B,1);%local degree of each node (in Network B)
 	dg=sum(adj_A,1)+dl;%degree of each node globally (in Network A and B)
 	dl_total=sum(adj_B(:));%total sum of degrees (in Network B)
 	dg_total=sum(adj_A(:))+dl_total;%global degree across both networks
-	for i=k+1:node_number % for each of newly arrived nodes from orders(:)
+    for i=k+1:node_number % for each of newly arrived nodes from orders(:)
 		prob=alpha*dl/dl_total+(1-alpha)*dg/dg_total;   
 		prob=prob(orders(1:i-1));
 		remaining_indexes=1:i-1;
@@ -121,12 +95,9 @@ function [deg] = gen_graph_only(alpha,node_number,k)
 	%         end
 	%     end
 	
-	end
-	
-	
-	
+    end
 	degB=sum(adj_B,1);
-    
-    deg = histc(degA, 0:1:200);
+	
+    histexact = histcounts(degA+degB, 0:5000);
 end
 

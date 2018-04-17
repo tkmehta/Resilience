@@ -7,10 +7,10 @@ poolobj=parpool(p,numprocs);%generate a parallel pool
 
 %variables
 %alpha=0:0.1:1;
-alpha=0:.1:1;
-k=8; 
+alpha=0:1:1;
+k=1; 
 node_number=1000;
-number_of_runs=3000;
+number_of_runs=100;
 fracs=0.05;
 failed_path_weight=100;
 
@@ -21,7 +21,7 @@ tic
     
         for m=1:number_of_runs
            [alpha(i), m]
-           	deg_count(i, :) = deg_count(i, :) + gen_evo_graph(alpha(i),node_number,k);
+           	deg_count(i, :) = deg_count(i, :) + gen_graph_only(alpha(i),node_number,k);
         end
             deg_count(i, :) = deg_count(i, :)/number_of_runs;
     end
