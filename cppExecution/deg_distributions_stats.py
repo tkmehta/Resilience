@@ -3,6 +3,7 @@ from itertools import izip_longest
 tenk = True 
 dists = {}
 count = {}
+dohealerrange = False 
 if tenk:
     filename = "out10k.dat"
     num_nodes = 10000.0
@@ -10,12 +11,16 @@ else:
     filename = "out1k.dat"
     num_nodes = 1000.0
 deviation = {}
-dostandev = False
+dostandev = False 
 k = 0
+best_range = {}
+pen_range = {}
 for i in range(0, 11):
     dists[i/10.0] = []
     deviation[i/10.0] = []
     count[i/10.0] = 0 
+    best_range[i/10.0] = [0, 0]
+    pen_range[i/10.0] = []
 with open(filename, 'r') as fin:
     index = 0
     for s in fin:
@@ -26,7 +31,7 @@ with open(filename, 'r') as fin:
             index += 1
             try:
                 #dist[-1] = num_nodes - sum(dist[0:-2])
-                dist = [x / num_nodes for x in dist]
+                #dist = [x / num_nodes for x in dist]
                 assert dist[-1] > 0
             except AssertionError:
                 print "Last value: ", dist[-1]
@@ -41,12 +46,12 @@ with open(filename, 'r') as fin:
                 print "Non-zero number of nodes with degree less than 2k"
                 print "Index: ", index
             try:
-                assert sum(dist) >= .99 and sum(dist) <=1.01 
+                assert sum(dist) == num_nodes 
             except AssertionError:
+                print "Distribution does not sum to number of nodes in graph"
                 print "Distribution Sum: ", sum(dist)
                 print "Alpha: ", float(s_split[4])
                 print "Index: ", index
-                raise AssertionError
             alpha = float(s_split[4])
             dists[alpha] = [x + y for x,y in izip_longest(dist, dists[alpha], fillvalue=0)] 
             count[alpha] = count[alpha] + 1
@@ -58,10 +63,15 @@ print "AVERAGE DEGREE DISTRIBUTION"
 print "AVERAGE DEGREE DISTRIBUTION"
 print "AVERAGE DEGREE DISTRIBUTION"
 print "AVERAGE DEGREE DISTRIBUTION"
-for i in [0, 8, 9, 10]:
-    print "alpha: ",
-    print i/10.0
-    print dists[i/10.0]
+outfile = open("avg_deg.dat", "w")
+for i in range(0, 11):
+    #outfile.write("alpha: ")
+    #outfile.write(str(i/10.0))
+    #outfile.write(",".join(map(str, dists[i/10.0])))
+    #outfile.write("/n")
+    print >>outfile, "Alpha: ", i/10.0
+    print >>outfile, dists[i/10.0]
+outfile.close()
 if dostandev:
     with open(filename, 'r') as fin:
         for s in fin:
@@ -86,3 +96,28 @@ if dostandev:
         print "alpha: ", i/10.0
         print "alpha: ", i/10.0
         print deviation[i/10.0]
+
+if dohealerrange:
+    for i in range(1, 10):
+        alpha = i/10.0
+        # Consider setting vecsize to 500
+        #vecsize = min(len(dists[alpha]), len(dists[0.0]), len(dists[1.0]))
+        vecsize = 300
+        inzone = False
+        zone = [-1, -1]
+        savedzone = [-1, -1]
+        for j in range(0, vecsize):
+                if dists[alpha][j] >= dists[1][j] and dists[alpha][j] >= dists[0][j]: 
+                    if inzone == False:
+                        zone[0] = j
+                        inzone = True
+                else:
+                    if inzone == True:
+                        zone[1] = j-1
+                        inzone = False
+                        if savedzone == [-1, -1] or (savedzone[1] - savedzone[0]) < (zone[1] - zone[0]):
+                            savedzone = zone
+        best_range[alpha] = savedzone
+        print "Alpha: ", alpha
+        print "Range: ", savedzone
+                        
