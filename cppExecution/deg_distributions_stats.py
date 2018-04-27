@@ -5,7 +5,7 @@ dists = {}
 count = {}
 dohealerrange = False 
 if tenk:
-    filename = "out10k.dat"
+    filename = "finalout10k67.dat"
     num_nodes = 10000.0
 else:
     filename = "out1k.dat"
