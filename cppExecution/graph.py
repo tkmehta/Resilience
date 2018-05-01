@@ -64,13 +64,13 @@ def plotData(fileName):
 			if str(alphaValues[a]) == str(alpha):
 				index = a
 				break
-		minProb[index].append(1/float(splits[5]))
-		maxProb[index].append(1/float(splits[6]))
-		avgProb[index].append(1/float(splits[7]))
+		minProb[index].append(float(splits[5]))
+		maxProb[index].append(float(splits[6]))
+		avgProb[index].append(float(splits[7]))
 
-		minProbRand[index].append(1/float(splits[8]))
-		maxProbRand[index].append(1/float(splits[9]))
-		avgProbRand[index].append(1/float(splits[10]))
+		minProbRand[index].append(float(splits[8]))
+		maxProbRand[index].append(float(splits[9]))
+		avgProbRand[index].append(float(splits[10]))
 
 	graph = mp.figure()
 
@@ -79,8 +79,8 @@ def plotData(fileName):
 	mp.xticks(list(range(1,ALPHA_RANGE+1)), [str(a) for a in alphaValues])
 	mp.title("Recovery Model", size=15)
 	mp.xlabel('Alpha Value', size=12)
-	mp.ylabel('Minimum Recovery Probability (s)', size=12)
-	mp.savefig('Plots/minProbn1kd417.jpg')
+	mp.ylabel('Minimum Recovery Probability(s)', size=12)
+	mp.savefig('Plots/minProbn' + fileName + ' ' + str(datetime.datetime.now()) + '.jpg')
 	mp.close()
 
 	graph = mp.figure()
@@ -91,7 +91,7 @@ def plotData(fileName):
 	mp.title("Recovery Model", size=15)
 	mp.xlabel('Alpha Value', size=12)
 	mp.ylabel('Maximum Recovery Probability (s)', size=12)
-	mp.savefig('Plots/maxProbn1kd417.jpg')
+	mp.savefig('Plots/maxProbn' + fileName + ' ' + str(datetime.datetime.now()) + '.jpg')
 	mp.close()
 	
 	graph = mp.figure()
@@ -102,7 +102,7 @@ def plotData(fileName):
 	mp.title("Recovery Model", size=15)
 	mp.xlabel('Alpha Value', size=12)
 	mp.ylabel('Average Recovery Probability (s)', size=12)
-	mp.savefig('Plots/avgProbn1kd417.jpg')
+	mp.savefig('Plots/avgProbn' + fileName + ' ' + str(datetime.datetime.now()) + '.jpg')
 	mp.close()
 	
 	graph = mp.figure()
@@ -113,7 +113,7 @@ def plotData(fileName):
 	mp.title("Recovery Model", size=15)
 	mp.xlabel('Alpha Value', size=12)
 	mp.ylabel('Minimum Recovery Probability (s)', size=12)
-	mp.savefig('Plots/minProbRandn1kd417.jpg')
+	mp.savefig('Plots/minProbRandn' + fileName + ' ' + str(datetime.datetime.now()) + '.jpg')
 	mp.close()
 
 	graph = mp.figure()
@@ -124,7 +124,7 @@ def plotData(fileName):
 	mp.title("Recovery Model", size=15)
 	mp.xlabel('Alpha Value', size=12)
 	mp.ylabel('Maximum Recovery Probability (s)', size=12)
-	mp.savefig('Plots/maxProbRandn1kd417.jpg')
+	mp.savefig('Plots/maxProbRandn' + fileName + ' ' + str(datetime.datetime.now()) + '.jpg')
 	mp.close()
 	
 	graph = mp.figure()
@@ -135,7 +135,7 @@ def plotData(fileName):
 	mp.title("Recovery Model", size=15)
 	mp.xlabel('Alpha Value', size=12)
 	mp.ylabel('Average Recovery Probability (s)', size=12)
-	mp.savefig('Plots/avgProbRandn1kd417.jpg')
+	mp.savefig('Plots/avgProbRandn' + fileName + ' ' + str(datetime.datetime.now()) + '.jpg')
 	mp.close()
 
 if __name__ == '__main__':

@@ -10,9 +10,9 @@ numprocs = feature ('numcores'); % maximum is number of physical cores
 poolobj=parpool(p,numprocs);%generate a parallel pool
 tic
 alpha=0:.1:1;
-k=5; 
-node_number=10000;
-number_of_runs=1000;
+k=2; 
+node_number=1000;
+number_of_runs=100;
 fracs=0.05;
 failed_path_weight=100;
 
